@@ -3,6 +3,9 @@ Jet Substructure Models used in the LogicNets paper
 """
 
 import torch.nn as nn
+import torch.nn.functional as F
+
+from chop.models.utils import MaseModelInfo
 
 
 class JSC_Toy(nn.Module):
@@ -28,6 +31,58 @@ class JSC_Toy(nn.Module):
     def forward(self, x):
         return self.seq_blocks(x)
 
+
+class JSC_Three_Linear_Layers(nn.Module):
+    def __init__(self, info):
+        super(JSC_Three_Linear_Layers, self).__init__()
+        self.seq_blocks = nn.Sequential(
+            nn.BatchNorm1d(16),  # unchanged      
+            nn.ReLU(16),     
+            nn.Linear(16, 16), # output      
+            nn.ReLU(16),     
+            nn.Linear(16, 16), # input & output     
+            nn.ReLU(16),        
+            nn.Linear(16, 5),  # input    
+            nn.ReLU(5),       
+        )
+
+    def forward(self, x):
+        return self.seq_blocks(x)
+    
+
+class ResBlock(nn.Module):
+    def __init__(self, in_channels, out_channels, stride=1):
+        super(ResBlock, self).__init__()
+        self.conv1 = nn.Conv1d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1)
+        self.conv2 = nn.Conv1d(out_channels, out_channels, kernel_size=3, stride=1, padding=1)
+
+    def forward(self, x):
+        residual = x
+        out = F.relu(self.conv1(x))
+        out = self.conv2(out)
+        out += residual  
+        out = F.relu(out)
+        return out
+
+class JSC_rs1923(nn.Module):
+    def __init__(self, info):
+        super(JSC_rs1923, self).__init__()
+        self.conv1 = nn.Conv1d(1, 8, kernel_size=3, stride=1, padding=1)
+        self.conv2 = nn.Conv1d(8, 16, kernel_size=3, stride=1, padding=1)
+        self.block = ResBlock(16, 16)
+        self.fc = nn.Linear(16 * 16, 5)  
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, x):
+        # x = x.unsqueeze(1)
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = self.block(x)
+        x = x.view(-1, 16 * 16) 
+        x = self.fc(x)
+        x = F.relu(x)
+        return x
+    
 
 class JSC_Tiny(nn.Module):
     def __init__(self, info):
@@ -94,3 +149,39 @@ def get_jsc_tiny(info):
 
 def get_jsc_s(info):
     return JSC_S(info)
+
+
+def get_jsc_three_linear_layers(info):
+    return JSC_Three_Linear_Layers(info)
+
+
+def get_jsc_rs1923(info):
+    return JSC_rs1923(info)
+
+
+info =  MaseModelInfo(
+            "jsc-rs1923",
+            model_source="physical",
+            task_type="physical",
+            physical_data_point_classification=True,
+            is_fx_traceable=True,
+        )
+jsc_rs1923 = JSC_rs1923(info)
+total_params = 0
+for param in jsc_rs1923.parameters():
+    total_params += param.numel()
+print(f'Total number of JSC_1923 parameters: {total_params}')
+
+
+info =  MaseModelInfo(
+            "jsc-tiny",
+            model_source="physical",
+            task_type="physical",
+            physical_data_point_classification=True,
+            is_fx_traceable=True,
+        )
+jsc_tiny = JSC_Tiny(info)
+total_params = 0
+for param in jsc_tiny.parameters():
+    total_params += param.numel()
+print(f'Total number of JSC_Tiny parameters: {total_params}')

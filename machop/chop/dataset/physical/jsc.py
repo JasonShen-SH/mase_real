@@ -159,7 +159,10 @@ class JetSubstructureDataset(Dataset):
         return len(self.X)
 
     def __getitem__(self, idx):
-        return self.X[idx], self.Y[idx]
+        x = self.X[idx]
+        y = self.Y[idx]
+        #x = x.unsqueeze(0)  # change if there is convolution network
+        return x,y
 
     def prepare_data(self) -> None:
         # Download and preprocess the dataset on the main process in distributed training

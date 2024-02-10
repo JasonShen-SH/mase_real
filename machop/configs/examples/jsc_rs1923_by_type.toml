@@ -1,22 +1,23 @@
 # basics
-model = "jsc-tiny"
+model = "jsc-rs1923"
 dataset = "jsc"
 task = "cls"
 
-max_epochs = 5
-batch_size = 256  # 512
-learning_rate = 1e-5  # 1e-2
-accelerator = "cpu"  # "gpu"
-project = "jsc-tiny"
+max_epochs = 5 
+batch_size = 512
+learning_rate = 1e-2
+accelerator = "cpu"
+project = "jsc-rs1923"
 seed = 42
 log_every_n_steps = 5
-load_name = "../mase_output/jsc-tiny_classification_jsc_2024-02-05/software/training_ckpts/best.ckpt"
+load_name = "../mase_output/jsc-rs1923_classification_jsc_2024-02-05/software/training_ckpts/best.ckpt"
 load_type = "pl"
 
 [passes.quantize]
 by = "type"
 [passes.quantize.default.config]
 name = "NA"
+
 [passes.quantize.linear.config]
 name = "integer"
 "data_in_width" = 8
@@ -26,8 +27,17 @@ name = "integer"
 "bias_width" = 8
 "bias_frac_width" = 4
 
+[passes.quantize.conv1d.config]
+name = "integer"
+"data_in_width" = 8
+"data_in_frac_width" = 4
+"weight_width" = 8
+"weight_frac_width" = 4
+"bias_width" = 8
+"bias_frac_width" = 4
+
 [search.search_space]
-name = "graph/quantize/mixed_precision_ptq"
+name = "graph/quantize/mixed_precision_ptq" 
 
 [search.search_space.setup]
 by = "name"
@@ -49,12 +59,12 @@ bias_frac_width = ["NA"]
 [search.search_space.seed.seq_blocks_2.config]
 # if search.search_space.setup.by = "name", this seed will be used to quantize the mase graph node with name "seq_blocks_2"
 name = ["integer"]
-data_in_width = [8, 8, 4, 16]
-data_in_frac_width = [4, 6, 2, 8]
-weight_width = [8, 8, 4, 16]
-weight_frac_width = [4, 6, 2, 8]
-bias_width = [8]
-bias_frac_width = [4]
+data_in_width = [4, 8]
+data_in_frac_width = ["NA"]
+weight_width = [2, 4, 8]
+weight_frac_width = ["NA"]
+bias_width = [2, 4, 8]
+bias_frac_width = ["NA"]
 
 [search.strategy]
 name = "optuna"
@@ -72,6 +82,7 @@ n_jobs = 1
 n_trials = 20
 timeout = 20000
 sampler = "tpe"
+
 # sum_scaled_metrics = true # single objective
 # direction = "maximize"
 sum_scaled_metrics = false # multi objective
@@ -83,3 +94,5 @@ accuracy.scale = 1.0
 accuracy.direction = "maximize"
 average_bitwidth.scale = 0.2
 average_bitwidth.direction = "minimize"
+
+

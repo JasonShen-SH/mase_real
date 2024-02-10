@@ -6,6 +6,7 @@ from .add_metadata import (
     add_common_metadata_analysis_pass,
     add_hardware_metadata_analysis_pass,
     add_software_metadata_analysis_pass,
+    add_flops_bitops_analysis_pass, # new
 )
 from .init_metadata import init_metadata_analysis_pass
 from .hardware import run_cosim_analysis_pass, get_synthesis_results

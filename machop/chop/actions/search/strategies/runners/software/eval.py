@@ -29,6 +29,7 @@ class RunnerBasicEval(SWRunnerBase):
 
     def _post_init_setup(self) -> None:
         self.loss = MeanMetric().to(self.accelerator)
+        #self.loss = MeanMetric().to("cpu")
         self._setup_metric()
 
         assert "num_samples" in self.config, "num_samples is not set in the config."
@@ -39,7 +40,7 @@ class RunnerBasicEval(SWRunnerBase):
                 case "classification" | "cls":
                     self.metric = MulticlassAccuracy(
                         num_classes=self.dataset_info.num_classes
-                    ).to(self.accelerator)
+                    ).to(self.accelerator)  # "cpu""
                 case _:
                     raise ValueError(f"task {self.task} is not supported.")
         elif self.model_info.is_nlp_model:
@@ -73,6 +74,7 @@ class RunnerBasicEval(SWRunnerBase):
 
     def vision_cls_forward(self, batch, model):
         x, y = batch[0].to(self.accelerator), batch[1].to(self.accelerator)
+        # x, y = batch[0].to("cpu"), batch[1].to("cpu")
         logits = model(x)
         loss = torch.nn.functional.cross_entropy(logits, y)
         acc = self.metric(logits, y)

@@ -49,6 +49,7 @@ class GraphSearchSpaceMixedPrecisionPTQ(SearchSpaceBase):
         # set train/eval mode before creating mase graph
 
         self.model.to(self.accelerator)
+        #self.model.to("cpu")
         if is_eval_mode:
             self.model.eval()
         else:
@@ -65,6 +66,7 @@ class GraphSearchSpaceMixedPrecisionPTQ(SearchSpaceBase):
         if sampled_config is not None:
             mg, _ = quantize_transform_pass(self.mg, sampled_config)
         mg.model.to(self.accelerator)
+        # mg.model.to("cpu")
         return mg
 
     def _build_node_info(self):

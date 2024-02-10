@@ -58,6 +58,7 @@ def search(
         model = load_model(load_name=load_name, load_type=load_type, model=model)
         logger.info(f"Loaded model from {load_name}.")
     model.to(accelerator)
+    #model.to("cpu")
     # set up data module
     data_module.prepare_data()
     data_module.setup()
@@ -70,6 +71,7 @@ def search(
         model_info=model_info,
         config=search_space_config,
         dummy_input=get_dummy_input(model_info, data_module, task, device=accelerator),
+        #dummy_input=get_dummy_input(model_info, data_module, task, device="cpu"),
         accelerator=accelerator,
     )
     search_space.build_search_space()

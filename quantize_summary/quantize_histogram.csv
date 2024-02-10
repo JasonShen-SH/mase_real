@@ -1,0 +1,8 @@
+Original type,OP,Total,Changed,Unchanged
+Conv1d,conv1d,4,4,0
+Linear,linear,1,1,0
+add,add,1,0,1
+output,output,1,0,1
+relu,relu,5,0,5
+view,view,1,0,1
+x,placeholder,1,0,1

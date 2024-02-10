@@ -1,0 +1,67 @@
+# basics
+model = "vgg7"
+dataset = "cifar10"
+task = "cls"
+
+max_epochs = 5
+batch_size = 512
+learning_rate = 1e-5  # 1e-2
+accelerator = "cpu"
+project = "cifar10_vgg"
+seed = 42
+log_every_n_steps = 5
+load_name = "../mase_output/vgg7_classification_cifar10_2024-02-01/software/training_ckpts/best.ckpt"
+load_type = "pt"
+
+[search.search_space]
+name = "graph/quantize/cifar10_vgg"
+
+[search.search_space.setup]
+by = "name"
+
+[search.search_space.seed.seq_blocks_0.config]
+channel_multiplier_output = [64, 128, 256, 512]
+
+[search.search_space.seed.seq_blocks_3.config]
+channel_multiplier_output = [64, 128, 256, 512]
+
+[search.search_space.seed.seq_blocks_7.config]
+channel_multiplier_output = [64, 128, 256, 512]
+
+[search.search_space.seed.seq_blocks_10.config]
+channel_multiplier_output = [64, 128, 256, 512]
+
+[search.search_space.seed.seq_blocks_14.config]
+channel_multiplier_output = [64, 128, 256, 512]
+
+[search.search_space.seed.seq_blocks_17.config]
+channel_multiplier_output = [64, 128, 256, 512]
+
+[search.strategy]
+name = "optuna"
+eval_mode = true
+
+[search.strategy.sw_runner.basic_evaluation]
+data_loader = "val_dataloader"
+num_samples = 512
+
+[search.strategy.hw_runner.average_bitwidth]
+compare_to = 32 # compare to FP32
+
+[search.strategy.setup]
+n_jobs = 1 # single-processing or multi-processing
+n_trials = 10  
+timeout = 20000
+sampler = "tpe"
+
+# sum_scaled_metrics = true # single objective
+# direction = "maximize"
+sum_scaled_metrics = false # multi objective
+
+[search.strategy.metrics]
+# loss.scale = 1.0
+# loss.direction = "minimize"
+accuracy.scale = 1.0
+accuracy.direction = "maximize"
+average_bitwidth.scale = 0.2
+average_bitwidth.direction = "minimize"

@@ -4,6 +4,7 @@
 import torch
 import torch.nn as nn
 
+'''
 
 class VGG7(nn.Module):
     def __init__(self, image_size: list[int], num_classes: int) -> None:
@@ -47,7 +48,47 @@ class VGG7(nn.Module):
         x = self.last_layer(x)
         return x
 
+'''
 
+class VGG7(nn.Module):
+    def __init__(self, image_size: list[int], num_classes: int) -> None:
+        super(VGG7, self).__init__()
+
+        self.seq_blocks = nn.Sequential(
+            nn.Conv2d(image_size[0], 128, kernel_size=3, padding=1), # 0
+            nn.BatchNorm2d(128, momentum=0.9),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(128, 128, kernel_size=3, padding=1), # 3
+            nn.BatchNorm2d(128, momentum=0.9),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2),
+            nn.Conv2d(128, 256, kernel_size=3, padding=1), # 7
+            nn.BatchNorm2d(256, momentum=0.9),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(256, 256, kernel_size=3, padding=1), # 10
+            nn.BatchNorm2d(256, momentum=0.9),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2),
+            nn.Conv2d(256, 512, kernel_size=3, padding=1), # 14
+            nn.BatchNorm2d(512, momentum=0.9),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(512, 512, kernel_size=3, padding=1), # 17
+            nn.BatchNorm2d(512, momentum=0.9),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2),
+
+            nn.Flatten(),
+            nn.Linear(8192, 1024), # 22
+            nn.ReLU(inplace=True),
+            nn.Linear(1024, 1024),
+            nn.ReLU(inplace=True),
+            nn.Linear(1024, num_classes)
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.seq_blocks(x)
+    
+    
 def get_vgg7(info, pretrained=False) -> VGG7:
     image_size = info.image_size
     num_classes = info.num_classes
