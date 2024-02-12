@@ -169,7 +169,7 @@ for i, config in enumerate(search_spaces):
     })   
 </pre>
 
-<img src="../../imgs/3_2.png" width=1000>
+<img src="../imgs/3_2.png" width=1000>
 
 The figure above depicts the distinct metrics observed for varying quantization configurations, from which we could derive two main conclusions:
 
@@ -181,7 +181,7 @@ The figure above depicts the distinct metrics observed for varying quantization 
 
 Accuracy and loss actually serve as the same quanlity metric. In fact, accuracy and loss are inversely proportional, implying that as the model's prediction accuracy increases, the prediction loss correspondingly decreases. This relationship is evident from the following formula for accuracy (torcheval.metrics.MulticlassAccuracy):
 
-<img src="../../imgs/3_2_1.png" width=200>
+<img src="../imgs/3_2_1.png" width=200>
 
 This formula quantifies the number of incorrect predictions within a batch. When we consider its negation, it also serves as a form of loss.
 
@@ -233,7 +233,7 @@ Then we execute the command:
 
 And we get:
 
-<img src="../../imgs/3_3.png" width=1000>
+<img src="../imgs/3_3.png" width=1000>
 
 The trials with the largest accuracy is 52%, indicating that the quantisation has the capability to significantly reduce the model storage space while largely maintain accuracy.
 
@@ -245,17 +245,17 @@ Therefore, in the context of evaluating different samplers, we assess their perf
 
 <pre>
 # The best trial accuracy when n_trial=1 (brute-force sampler)
-<img src="../../imgs/3_4_bruteforce.png" width=1000>
+<img src="../imgs/3_4_bruteforce.png" width=1000>
     
 # The best trial accuracy when n_trial=1 (tpe sampler)
-<img src="../../imgs/3_4_tpe.png" width=1000>
+<img src="../imgs/3_4_tpe.png" width=1000>
 </pre>
 
 Therefore, as both sampler only have one trial, we can see that the *tpe* sampler has a much higher sample efficiency compared to the *brute-force* sampler.
 
 We could continue to check the best trial accuracy for both samplers from n_trial=1 to 5.
 
-<img src="../../imgs/3_4_compare.png" width=600>
+<img src="../imgs/3_4_compare.png" width=600>
 
 It is evident that the TPE method consistently maintains a relatively high best trial accuracy. In contrast, the brute-force method exhibits significant fluctuations in accuracy as the data_loader order has been randomized.
 
@@ -329,7 +329,7 @@ pass_config_relu = {
 
 Then, we can obtain the updated model with its layers' dimensions doubled.
 
-<img src="../../imgs/4_1.png" width=800>
+<img src="../imgs/4_1.png" width=800>
 
 ## 2. Use grid search to search for the best channel multiplier value.
 
@@ -392,7 +392,7 @@ for multiplier in channel_multiplier:
 
 Then, we can obtain the accuracy and loss of the models corresponding to each channel multiplier value.
 
-<img src="../../imgs/4_2.png" width=200>
+<img src="../imgs/4_2.png" width=200>
 
 In our case, the best model is the one with multiplier=5, with an accuracy of 23.5%.
 
@@ -404,7 +404,7 @@ We establish a search space defined by the set [1, 2, 3, 4, 5], where channel mu
 
 For each point of channel input/output modification, unique multiplier variables are designated, namely, **a, b, c, d**. These variables individually adjust the scaling factor applied to their corresponding channel dimensions.
 
-<img src="../../imgs/4_3.png" width=500>
+<img src="../imgs/4_3.png" width=500>
 
 Please note that we will actually only iterate through values for a and c. as b=a and d=c for the consistency of channel output and the next channel's input.
 
@@ -511,11 +511,11 @@ for a in multipliers:
 
 Then we obtain the result:
 
-<img src="../../imgs/4_3_2.png" width=600>
+<img src="../imgs/4_3_2.png" width=600>
 
 We find that when a=b=1 and c=d=4, the model has the highest accuracy of 32.2%, which corresponds to the following model:
 
-<img src="../../imgs/4_3_3.png" width=600>
+<img src="../imgs/4_3_3.png" width=600>
 
 
 ## 4. Integrate the search to the chop flow, so we can run it from the command line.
@@ -649,7 +649,7 @@ Finally, we execute the command:
 </pre>
 
 Then we found that the search option with the highest accuracy achieved an accuracy rate of 24.2%.
-<img src="../../imgs/4_4.png" width=1000>
+<img src="../imgs/4_4.png" width=1000>
 
 
 ## Optional Task (scaling the search to real networks)
