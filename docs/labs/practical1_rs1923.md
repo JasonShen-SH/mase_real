@@ -52,7 +52,7 @@ It has been observed that larger batch sizes typically yield higher training acc
 ### Impact of varying max epochs
 <img src="../imgs/val_acc_max_epoch.png" width=400>
 
-We found that larger total epochs of training result in the model's overall better performance, as more training would capture more patterns of the data. Meanwhile, as the model **JSC-Tiny** used is a simple model with only one linear layer and the dataset is big enough, the overfitting problem did not occur ith more training epochs, as can be observed from the table below:
+We found that larger total epochs of training result in the model's overall better performance, as more training would capture more patterns of the data. Meanwhile, although the model **JSC-Tiny** used is a simple model with only one linear layer and the dataset is big enough, the overfitting problem seemed to not occur with more training epochs, as can be observed from the table below:
 |           |  max-epoch |val_acc_last_epoch|train_acc_last_step|
 |-----------|------------|------------------|-------------------|
 | model1    | 10         |      0.513       |       0.561       |
