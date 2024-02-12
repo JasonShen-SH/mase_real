@@ -8,7 +8,7 @@ Overall, we have explored four additional metrics: 1)Latency, 2)Model size, 3)FL
 **Latency**: (Unit: ms, we have multiplied by 1000)
 
 For each search option, we calculate the latency for each input-batch, then accumulate all latencies to take the average.
-<pre>
+```yaml
 for i, config in enumerate(search_spaces):
     mg, _ = quantize_transform_pass(mg, config)
     ''''''
@@ -21,7 +21,7 @@ for i, config in enumerate(search_spaces):
         latencies.append(latency*1000)
         ''''''
     latency_avg = sum(latencies) / len(latencies) 
-</pre>
+```
 
 
 **Model size**: (Unit: Byte)
@@ -29,15 +29,15 @@ for i, config in enumerate(search_spaces):
 It is presupposed that the model, whose size is to be calculated, has already undergone quantization, each time with different search option.
 
 For each search option, we calculate the total storage size of the model by iterating through the space occupied by the weights of each layer.
-<pre>
+```yaml
 The memory footprint of each layer is determined by the following attributes:
 Linear: weight, bias
 Batchnorm: weight(γ), bias(β), mean, variance
 ReLU: None
-</pre>
+```
 
 The subsequent script is designed for assessing the memory consumption attributed to the model
-<pre>
+```yaml
 def model_storage_size(model, weight_bit_width, bias_bit_width, data_bit_width):
     total_bits = 0 
     for name, param in model.named_parameters():
@@ -55,7 +55,7 @@ for i, config in enumerate(search_spaces):
     # definition of weight & bias & data width
     size = model_storage_size(mg.model, weight_bit_width, bias_bit_width, data_bit_width)
     ''''''
-</pre>
+```
 
 
 **FLOPs**: (Unit: number)
@@ -65,7 +65,7 @@ For each search option, we compute the FLOPs for linear, batchnorm, and relu mod
 We employ the same methodology as outlined in the optional task of Lab2. 
 (Detailed explanations are also available in the code comments)
 
-<pre>
+```yaml
 def calculate_flop_for_linear(module, batch_size):
     in_features = module.in_features
     out_features = module.out_features
@@ -95,7 +95,7 @@ def add_flops_bitops_analysis_pass(graph):
     flops = calculate_flop_for_relu(get_node_actual_target(node), 5, batch_size)
     total_flops += flops
     return total_flops
-</pre>
+```
 
 
 **Bit-wise operations**: (Unit: number)
@@ -104,7 +104,7 @@ For each search option, we compute the bitwise operations count for linear modul
 
 We employ identical methodology as outlined in the optional task of Lab2.
 
-<pre>
+```yaml
 def bit_wise_op(model, input_res, data_width, weight_width, bias_width, batch_size):
     total_bitwise_ops = 0
     for name, module in model.named_modules():
@@ -127,19 +127,19 @@ for i, config in enumerate(search_spaces):
     # definition of weight & bias & data width
     bit_op = bit_wise_op(mg.model, (16,), data_bit_width, weight_bit_width, bias_bit_width)
     ''''''
-</pre>
+```
 
 ## 2. Implement some of these additional metrics and attempt to combine them with the accuracy or loss quality metric
 
 Note that to leverage the pretrained model (as relying solely on randomly initialized parameters across various models during the search process would make metrics like accuracy become meaningless), it is imperative to preload the "best.ckpt" file.
-<pre>
+```yaml
 CHECKPOINT_PATH = "/mnt/d/imperial/second_term/adls/new/mase/mase_output/jsc-tiny_classification_jsc_2024-02-05/software/training_ckpts/best.ckpt"
 # model definition
 model = load_model(load_name=CHECKPOINT_PATH, load_type="pl", model=model)
-</pre>
+```
 
 Subsequently, inference is performed for each configuration within the search space.
-<pre>
+```yaml
 # Essential Code Segment (Extraneous elements omitted)
 for i, config in enumerate(search_spaces):
     size = model_storage_size(mg.model, weight_bit_width, bias_bit_width, data_bit_width)  # model size after it has been quantized
@@ -167,7 +167,7 @@ for i, config in enumerate(search_spaces):
     recorded_metrics.append({
         ......
     })   
-</pre>
+```
 
 <img src="../imgs/3_2.png" width=1000>
 
@@ -191,7 +191,7 @@ Currently, the system employs the TPE sampler from Optuna, which is a Bayesian o
 
 Alternatively, the BruteForceSampler from Optuna can also be utilized for hyperparameter optimization.
 
-<pre>
+```yaml
 # optuna.py within search strategies
 def sampler_map(self, name):
     ''''''
@@ -202,10 +202,10 @@ def sampler_map(self, name):
 [search.strategy.setup]
 ''''''
 sampler = "brute-force"
-</pre>
+```
 
 It's important to note that due to the way the search space is defined, we represent data_width, data_frac_width, weight_width, and weight_frac_width in the TOML file as follows:
-<pre>
+```yaml
 [search.search_space.seed.seq_blocks_2.config]  # In this case, we choose by "name" to locate the linear module.
 name = ["integer"]
 data_in_width = [8, 8, 4, 16]
@@ -216,7 +216,7 @@ bias_width = [8]
 bias_frac_width = [4]
 ''''''
 n_trials = 256 # 4*4*4*4
-</pre>
+```
 
 Therefore, within our search space, we have 4×4×4×4=256 search options available. This configuration does not strictly align with a one-to-one correspondence to the previously defined search space requirements. However, through these 256 approaches, we can **comprehensively cover** the entire scope of the previously defined search space.
 
@@ -227,9 +227,9 @@ The rationale behind randomizing the order of our search space (e.g., [8, 8, 4, 
 However, this would not accurately reflect its overall sample efficiency. By randomizing the search space, we aim to derive a more general conclusion regarding the samplers' performance in terms of sample efficiency.
 
 Then we execute the command:
-<pre>
+```yaml
 !./ch search --config configs/examples/jsc_toy_by_type.toml --load /mnt/d/imperial/second_term/adls/new/mase/mase_output/jsc-tiny_classification_jsc_2024-02-05/software/training_ckpts/best.ckpt
-</pre>
+```
 
 And we get:
 
@@ -243,13 +243,13 @@ Sample efficiency refers to the capability of identifying optimal (or near-optim
 
 Therefore, in the context of evaluating different samplers, we assess their performance based on the accuracy of the best trial in relation to the number of trials conducted.
 
-<pre>
+```yaml
 # The best trial accuracy when n_trial=1 (brute-force sampler)
 <img src="../imgs/3_4_bruteforce.png" width=1000>
     
 # The best trial accuracy when n_trial=1 (tpe sampler)
 <img src="../imgs/3_4_tpe.png" width=1000>
-</pre>
+```
 
 Therefore, as both sampler only have one trial, we can see that the *tpe* sampler has a much higher sample efficiency compared to the *brute-force* sampler.
 
@@ -270,7 +270,7 @@ We will adjust the configuration of each linear layer by applying a channel mult
 
 Regarding the ReLU activation layers, as the nn.ReLU module from PyTorch does not require any parameters for its initialization. Therefore, we'll standardize all ReLU layers to nn.ReLU().
 
-<pre>
+```yaml
 def instantiate_relu(boolean):
     return nn.ReLU(inplace=boolean)
 def redefine_relu_pass(graph, pass_args=None):
@@ -325,7 +325,7 @@ pass_config_relu = {
         }
     },
 }
-</pre>
+```
 
 Then, we can obtain the updated model with its layers' dimensions doubled.
 
@@ -335,9 +335,9 @@ Then, we can obtain the updated model with its layers' dimensions doubled.
 
 To ascertain the most effective channel multiplier, we have established a search space designed for selecting the optimal channel multiplier.
 
-<pre>
+```yaml
 search_space = [1,2,3,4,5]  # the set where channel multiplier selects its value from
-</pre>
+```
 
 **Training Process**: 
 
@@ -345,7 +345,7 @@ Contrary to the approach taken in Lab3 where pretrained models were loaded, the 
 
 We set max_epoch=10 for training and batch_size=512 for the dataloader.
 
-<pre>
+'''yaml
 # Essential Code Segment
 for multiplier in channel_multiplier:
     # get sampled_config
@@ -363,12 +363,12 @@ for multiplier in channel_multiplier:
             optimizer.step() 
 
     # save model, initialize masegraph and optimizer again
-</pre>
+```
 
 Subsequently, we executed the search.
 
 Given the network's simplicity, indicating manageable model size and reasonable latency, we focused exclusively on two key performance metrics **accuracy and loss** for evaluation.
-<pre>
+```yaml
 for multiplier in channel_multiplier:
     # get sampled_config
     # define pass_config_linear & pass_config_relu 
@@ -388,7 +388,7 @@ for multiplier in channel_multiplier:
     
     acc_avg = sum(accs) / len(accs) ; loss_avg = sum(losses) / len(losses)
     recorded_accs.append({"acc":acc_avg,"loss":loss_avg})
-</pre>
+```
 
 Then, we can obtain the accuracy and loss of the models corresponding to each channel multiplier value.
 
@@ -409,7 +409,7 @@ For each point of channel input/output modification, unique multiplier variables
 Please note that we will actually only iterate through values for a and c. as b=a and d=c for the consistency of channel output and the next channel's input.
 
 The following is the impelmentation for search space, the new *pass_config* method, and the updated *linear_transform_pass* function.
-<pre>
+```yaml
 # Essential Code Segment
 # within main function
 search_space = [1,2,3,4,5]
@@ -443,10 +443,10 @@ elif name == "both":
     out_features = out_features * config["channel_multiplier_output"] 
 elif name == "input_only":
     in_features = in_features * config["channel_multiplier_input"] 
-</pre>
+```
 
 We first perform training on different models. As with before, we set max_epoch=10 and batch_size=512.
-<pre>
+```yaml
 # Essential Code Segment
 multipliers = [1, 2, 3, 4, 5]
 max_epoch=10
@@ -472,11 +472,11 @@ for a in multipliers:
                 optimizer.step() 
 
         '''''' model save & updates for mg and optimizer
-</pre>
+```
 
 Subsequently, we executed the search.
 
-<pre>
+```yaml
 multipliers = [1, 2, 3, 4, 5]
 recorded_metrics = []
 metric = MulticlassAccuracy(num_classes=5)
@@ -507,7 +507,7 @@ for a in multipliers:
         acc_avg = sum(accs) / len(accs)
         loss_avg = sum(losses) / len(losses)
         recorded_metrics.append({"block2_output":a, "block4_input":b, "block4_output":c, "block6_input":d, "acc(%)":acc_avg*100, "loss":loss_avg})
-</pre>
+```
 
 Then we obtain the result:
 
@@ -537,21 +537,21 @@ Each time when the configuration updates, we need to rebuild the model with spec
 It mainly consists of three steps:
 
 2.1 Initialisation:
-<pre>
+```yaml
 mg = MaseGraph(self.model) # only pass the architecture but not the weights!
 mg,_ = init_metadata_analysis_pass(mg, None)
-</pre>
+```
 
 2.2 Change the model according to the sampled_config:
-<pre>
+```yaml
 mg, _ = self.redefine_linear_transform_pass(mg, sampled_config)
 mg, _ = self.redefine_relu_pass(mg, sampled_config)
-</pre>
+```
 
 2.3 Load the pretrained model with that sampled_config:
-<pre>
+```yaml
 mymodel = load_model(f"mase_output/4_3/model_with_multiplier_{numbers[0]}_{numbers[1]}_{numbers[2]}_{numbers[3]}.ckpt", "pl", mg.model)
-</pre>
+```
 We must load the pre-trained models in that proceeding directly to inference with the dataloader on the untrained models would result in evaluations that are meaningless.
 
 Finally, we return the masegraph with specified sampled_config.
@@ -559,25 +559,25 @@ Finally, we return the masegraph with specified sampled_config.
 3 build_search_space
 
 Build the search space for different channel multiplier input/output.
-<pre>
+```yaml
 multiplier_options = [1,2,3,4,5]
 self.choices_flattened = {
     "seq_blocks_2_channel_multiplier_output": multiplier_options, 
     "seq_blocks_4_channel_multiplier_output": multiplier_options,
 }
 self.choice_lengths_flattened = {k: len(v) for k, v in self.choices_flattened.items()}
-</pre>
+```
 
 4 flattened_indexes_to_config(self, indexes: dict[str, int]):
 
 Originally, configs are presented in such a way:
-<pre>
+```yaml
 "seq_blocks_2_channel_multiplier_output": 2,
 "seq_blocks_4_channel_multiplier_output": 3,
-</pre>
+```
 
 Now we need to reshape it into the ready-to-use type:
-<pre>
+```yaml
 def flattened_indexes_to_config(self, indexes: dict[str, int]):
 config = {
     "config":{
@@ -604,24 +604,24 @@ for key, index in indexes.items():
         elif block_name == "seq_blocks_4":
             config["config"]["seq_blocks_6"]["config"]["channel_multiplier_input"] = value
 return config
-</pre>
+```
 
 Note that we also need to define <code>DEFAULT_NETWORK_CONFIG</code>, as well as the previously defined functions for modifying network structure based on sampled_config, including <code>redefine_linear_transform_pass</code> and <code>redefine_relu_pass</code>.
 
 The appropriate import statements must be implemented.
-<pre>
+```yaml
 # search.search_space.quantization.__init__.py
 from .network_architecture import NetworkArchitectureSearch
 # search.search_space.__init__.py
 from .quantization import NetworkArchitectureSearch
 SEARCH_SPACE_MAP = {"graph/quantize/network_search": NetworkArchitectureSearch,}
-</pre>
+```
 
 In addition to establishing a custom search space, we must also generate a bespoke TOML file.
 
 We need to specify our task, together with the new search space within the file.
 
-<pre>
+```yaml
 # Only essential Code Segment are presented
 model = "jsc-three-linear-layers"
 dataset = "jsc"
@@ -641,12 +641,12 @@ channel_multiplier_input = [1, 2, 3, 4, 5]
 ''''''
 [search.strategy.setup]
 n_trials = 25  # altogether 5*5=25 search options within the search space
-</pre>
+```
 
 Finally, we execute the command:
-<pre>
+```yaml
 !./ch search --config configs/examples/jsc_network_search.toml --load /mnt/d/imperial/second_term/adls/new/mase/mase_output/jsc-three-linear-layers_classification_jsc_2024-01-31/software/training_ckpts/best.ckpt
-</pre>
+```
 
 Then we found that the search option with the highest accuracy achieved an accuracy rate of 24.2%.
 <img src="../imgs/4_4.png" width=1000>
@@ -659,13 +659,13 @@ As the methodology and approach are fundamentally similar to the previous questi
 To start with, we have modified the presentation format of the VGG model, transforming it into a sequence of network layers to simplify the process of writing the network configuration (making it much easier to modify the network architecture).
 
 The modified version of VGG model will only have <code>self.seq_blocks</code> in the forward function.
-<pre>
+```yaml
 def forward(self, x: torch.Tensor) -> torch.Tensor:
     return self.seq_blocks(x)
-</pre>
+```
 
 After modifying the model representation, we need to define our search space, which in this instance is [64, 128, 256, 512]. This search space is designated for the output of all convolutional layers, meaning the output channels of all convolutional layers can only be selected from these numbers.
-<pre>
+```yaml
 # part of build_search_space:
 search_space = [64, 128, 256, 512]
 self.choices_flattened = {
@@ -677,7 +677,7 @@ self.choices_flattened = {
     "seq_blocks_17_channel_output": search_space,
 }
 self.choice_lengths_flattened = {k: len(v) for k, v in self.choices_flattened.items()}
-</pre>
+```
 
 (Notice1): Additionally, we have stipulated that the number of channels must be ensured to be at least **non-decreasing**, meaning the output channel count of a subsequent convolutional layer must not be less than that of its preceding layer. 
 
@@ -687,7 +687,7 @@ self.choice_lengths_flattened = {k: len(v) for k, v in self.choices_flattened.it
 
 We will articulate the aforementioned four points as four separate notices. Below is their code implementation:
 
-<pre>
+```yaml
 # part of flattened_indexes_to_config:
     
 # notice1: Ensure the number of channels kept at least non-decreasing
@@ -712,11 +712,11 @@ for i in range(len(layer_sequence) - 1):
 
 # notice4: Ensure the first linear layer after flatten matches the feature dimension
 config["config"]["seq_blocks_22"]["config"]["channel_input"] = (config["config"]["seq_blocks_17"]["config"]["channel_output"]) * (4 * 4)    # 4*4 is the feature map size
-</pre>
+```
 
 
 Concurrently, we need to introduce new transformations for newly-introduced modules such as conv2d, bn and pooling (i.e., conv2d_transform, bn_transform and pooling_transform modules):
-<pre>
+```yaml
 # Only essential Code Segment are presented
 # for conv2d:
 if name == "output_only" or name == "both":
@@ -755,25 +755,25 @@ if name == "bn":
         new_module = self.instantiate_maxpool()
         parent_name, name = get_parent_name(node.target)
         setattr(graph.modules[parent_name], name, new_module)
-</pre>
+```
 
 We must also make corresponding modifications to the .toml file, which in this case, I have named <code>cifar10_vgg.toml</code>.
 
 Ultimately, we execute the following command to initiate the search operation:
-<pre>
+```yaml
 !./ch search --config configs/examples/cifar10_vgg.toml --load ../mase_output/vgg7_classification_cifar10_2024-02-01/software/training_ckpts/best.ckpt
-</pre>
+```
 
 In reality, we should complete the pre-training process for models under every configuration (for instance, training each search option for 10 epochs as we did previously). 
 
 However, due to the number of models with different configurations and GPU resource constraints, we proceed directly to inference, which might result in relatively limited accuracy.
 
-<pre>
+```yaml
 Best trial(s):
 |    |   number | software_metrics                  | hardware_metrics                                | scaled_metrics                              |
 |----+----------+-----------------------------------+-------------------------------------------------+---------------------------------------------|
 |  0 |        0 | {'loss': 2.309, 'accuracy': 0.11} | {'average_bitwidth': 32, 'memory_density': 1.0} | {'accuracy': 0.11, 'average_bitwidth': 6.4} |
-</pre>
+```
 
 
 
