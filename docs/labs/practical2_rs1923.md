@@ -774,7 +774,7 @@ Then we executed the **zero-cost proxies** method on Colab for each network arch
 
 The training was conducted on Colab, and further details can be accessed via the [provided link](https://colab.research.google.com/drive/1ucN6nWnnndV2dUsi2FCPNCMDBfuUXRaJ?usp=sharing).
 
-<img src="../imgs/4_optional.png" width=1000>
+<img src="../imgs/4_optional.png" width=500>
 
 We observed that the network configuration of **{256_256_256_256_512_512}** yielded the highest accuracy on the validation set, achieving an accuracy of 48.44% after just 10 epochs of training with only a single batch.
 
