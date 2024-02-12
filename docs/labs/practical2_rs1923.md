@@ -1,3 +1,6 @@
+**Note**:
+For optimal viewing experience due to formatting constraints, please visit [my github repo for practical2](https://github.com/JasonShen-SH/mase_real/blob/main/docs/labs/practical2_rs1923.md).
+
 # Lab 3
 
 ## 1. Explore additional metrics that can serve as quality metrics for the search process. 
