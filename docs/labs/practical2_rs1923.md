@@ -778,10 +778,9 @@ The training was conducted on Colab, and further details can be accessed via the
 
 We observed that the network configuration of **{256_256_256_256_512_512}** yielded the highest accuracy on the validation set, achieving an accuracy of 48.44% after just 10 epochs of training with only a single batch.
 
+Therefore, we believe that the network configuration of {256_256_256_256_512_512} is the most suitable for our task.
 
 ### Method2: Directly conducting the search 
-
-Therefore, we believe that the network configuration of {256_256_256_256_512_512} is the most suitable for our task.
 
 In fact, we could also bypass the zero-cost proxies and **directly** conduct a search, similar to the method described in question 4. This involves creating a new Python file in the corresponding directory to define the search space, and implementing transformation methods for each module (conv2d, linear, bn, relu, maxpool), along with their corresponding configurations. The complete code is available at [link](https://github.com/JasonShen-SH/mase_real/edit/main).
 
@@ -796,9 +795,9 @@ We execute the following command to initiate the search operation:
 
 And we get the result:
 
-<img src="../imgs/4_optional_2.png" width=800>
+<img src="../imgs/4_optional_2.png" width=1000>
 
-It shows that the mode with highest performance is model1, which in our case, is the configuration of {64, 128, 128, 512, 512, 512}, with only 11.7% accuracy.
+It shows that the mode with highest performance is model1, which in our case, is the configuration of **{64, 128, 128, 512, 512, 512}**, with only 11.7% accuracy.
 
 
 
