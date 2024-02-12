@@ -23,7 +23,7 @@ For each model with specific configuration, we conducted 10 training iterations,
 Finally, we calculated the average validation accuracy using the values obtained at the final epoch of each independent training iteration, and this is represented by "**val_acc_last_epoch**".
 
 ### Impact of varying batch sizes
-<img src="../../imgs/val_acc_batch_size.png" width=500>
+<img src="../imgs/val_acc_batch_size.png" width=500>
 After conducting experiments with batch sizes of 16, 32, 64, 128, 256, and 512, we have derived the following insights:     
 
 Our obeservations indicate that an increase in batch size correlates with a decrease in validation accuracy. This phenomenon can be attributed to the fact that larger batch sizes provide a more comprehensive representation of the training dataset, leading to higher training accuracy. However, this comprehensive representation would normally have much higher training accuracy, which subsequently facilitate convergence towards local minima (as weight updates become less frequent).
@@ -47,7 +47,7 @@ Here, we use "**train_acc_last_step**" to represent the accuracy of the last tra
 It has been observed that larger batch sizes typically yield higher training accuracy compared to validation accuracy. Conversely, this trend tends to invert with the reduction of batch sizes, which means better generalization ability.
 
 ### Impact of varying max epochs
-<img src="../../imgs/val_acc_max_epoch.png" width=400>
+<img src="../imgs/val_acc_max_epoch.png" width=400>
 
 We found that larger total epochs of training result in the model's overall better performance, as more training would capture more patterns of the data. Meanwhile, as the model **JSC-Tiny** used is a simple model with only one linear layer and the dataset is big enough, the overfitting problem did not occur ith more training epochs, as can be observed from the table below:
 |           |  max-epoch |val_acc_last_epoch|train_acc_last_step|
@@ -59,7 +59,7 @@ We found that larger total epochs of training result in the model's overall bett
 In our case, both the validation accuracy and the training accuracy increased with more epochs.
 
 ### What is happening with a large learning rate and what is happening with a small learning rate and why? What is the relationship between learning rates and batch sizes?
-<img src="../../imgs/val_acc_lr.png" width=500>
+<img src="../imgs/val_acc_lr.png" width=500>
 
 With larger learning rate, there's rapid convergence to a solution, and it has the potential to escape the local minima with large step. However, the solution might not be the optimal one (global minima), it mgith instead diverge from the minima point. Moreover, oscillation might occur near optimal points.
 
@@ -79,7 +79,7 @@ In our experiments, the validation accuracy increases from 1e-6 to 1e-3, before 
 
 Both hyperparameters have impact on the speed of convergence accroding to the formula: 
 
-<img src="../../imgs/weights_update.png" width=180>
+<img src="../imgs/weights_update.png" width=180>
 Therefore, when batch size is large (indicating smaller gradiant of loss to weights), we usually choose larger learning rate. Vice versa.
 
 
@@ -90,10 +90,10 @@ We've implemented a network with the following architecture:
 **Legend**:
 <div style="display: flex;">
   <figure style="margin-right: 20px;">
-    <img src="../../imgs/conv1d.png" width="200"/>
+    <img src="../imgs/conv1d.png" width="200"/>
   </figure>
   <figure>
-    <img src="../../imgs/residual_block.png" width="200"/>
+    <img src="../imgs/residual_block.png" width="200"/>
   </figure>
 </div>
 
@@ -102,7 +102,7 @@ We've implemented a network with the following architecture:
 
 **Network Architecture**
 
-<img src="../../imgs/jsc_rs1923.png" width="300" />
+<img src="../imgs/jsc_rs1923.png" width="300" />
 
 The network begins with an input of size 16 and features a residual block after two initial 1D convolutional and ReLU layers, the parallel paths of residual block then converge to a linear layer, and finally produces a final output of size 5 after a sigmoid activation function.
 
@@ -320,7 +320,7 @@ for ori_n, n in zip(ori_mg.fx_graph.nodes, mg.fx_graph.nodes):
 df = pd.DataFrame(rows, columns=headers)
 </pre>
 
-<img src="../../imgs/2_4.png" width="800" />
+<img src="../imgs/2_4.png" width="800" />
 
 We could find from the dataframe that only the node representing linear module has changed (i.e.quantized), the original type is *Linear*, the quantized type is *LinearInteger*.
 
@@ -369,13 +369,13 @@ In <code>pass-args</code>, for the convolution layer, we set its quantized <code
 
 The quantized table:
 
-<img src="../../imgs/2_5_quantized_table.png" width="800"/>
+<img src="../imgs/2_5_quantized_table.png" width="800"/>
 
 Only the convolution and linear layers have been quantized. Specifically, for convolution layers, their quantized type is Conv1dInteger, while for the linear layer, its quantized type is LinearInteger.
 
 The quantized histogram provides a more direct observation by looking at different node types:
 
-<img src="../../imgs/2_5_quantized_histogram.png" width="600"/>
+<img src="../imgs/2_5_quantized_histogram.png" width="600"/>
 
 
 
@@ -434,9 +434,9 @@ To summarize, thw whole idea is **a trade-off between computational efficiency a
 
 The PTQ process is summarized in the two figures below:
 
-<img src="../../imgs/ptq_training_quantisation.png" width="700" />
+<img src="../imgs/ptq_training_quantisation.png" width="700" />
 
-<img src="../../imgs/ptq_inference.png" width="600" />
+<img src="../imgs/ptq_inference.png" width="600" />
 
 **Now we write code for quantisation verification**
 
@@ -520,7 +520,7 @@ Run command:
 
 We could the same quantisation result:
 
-<img src="../../imgs/2_7.png" width="600" />
+<img src="../imgs/2_7.png" width="600" />
 
 
 ## Optional Task: Write your own pass
@@ -535,7 +535,7 @@ Within the pass, we compute the FLOPs for Linear, BatchNorm, and ReLU layers, em
 (The specific methods for calculating FLOPs are detailed in the comments within the functions)
 
 For batchnorm, note that γ and β here are 1*16 vector, and the multiplication and bias terms involve element-wise multiplication.
-<img src="../../imgs/batch_norm.png" width="200" />
+<img src="../imgs/batch_norm.png" width="200" />
 
 <pre>
 def calculate_flop_for_linear(module, batch_size):
