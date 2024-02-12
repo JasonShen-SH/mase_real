@@ -785,7 +785,7 @@ Therefore, we believe that the network configuration of {256_256_256_256_512_512
 
 In fact, we could also bypass the zero-cost proxies and **directly** conduct a search, similar to the method described in question 4. This involves creating a new Python file in the corresponding directory to define the search space, and implementing transformation methods for each module (conv2d, linear, bn, relu, maxpool), along with their corresponding configurations. The complete code is available at [link](https://github.com/JasonShen-SH/mase_real/edit/main).
 
-Conducting the search on a local CPU with the search strategy's sampler set to "tpe", we obtained the following search results:
+Conducting the search on a **local CPU** with the search strategy's sampler set to **"tpe"**, we obtained the following search results:
 
 (Note that we have 84 different search options within the search space, therefore, we set <code>n_trial=84</code> within the toml file).
 
@@ -796,7 +796,9 @@ We execute the following command to initiate the search operation:
 
 And we get the result:
 ```yaml
-
+<img src="../imgs/4_optional_2.png" width=500>
+```
+It shows that the mode with highest performance is model1, which in our case, is the configuration of {64, 128, 128, 512, 512, 512}, with only 11.7% accuracy.
 
 
 
