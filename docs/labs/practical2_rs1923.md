@@ -796,7 +796,7 @@ We execute the following command to initiate the search operation:
 
 And we get the result:
 
-<img src="../imgs/4_optional_2.png" width=500>
+<img src="../imgs/4_optional_2.png" width=800>
 
 It shows that the mode with highest performance is model1, which in our case, is the configuration of {64, 128, 128, 512, 512, 512}, with only 11.7% accuracy.
 
