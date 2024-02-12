@@ -657,7 +657,17 @@ Then we found that the search option with the highest accuracy achieved an accur
 
 ## Optional Task (scaling the search to real networks)
 
-As the methodology and approach are fundamentally similar to the previous question, and considering the substantial volume of code, we have refrained from including specific code snippets here. FUll code are provided here: [Full Code](https://github.com/JasonShen-SH/mase_real/tree/main)
+### Overall method:
+
+Overall, we have used **Zero-cost proxies method as the speedy performance estimator** for our task.
+
+This approach is adopted due to the high computational demands associated with fully training every network architecture configuration.
+
+As a means to swiftly identify promising models with potential for high performance, we evaluate each architecture using just a single batch of data (batch_size=128).
+
+In detail, for each architecture, we conduct a brief training of this single batch across 10 epochs, subsequently determining its accuracy on the validation set.
+
+### Implementations:
 
 To start with, we have modified the presentation format of the VGG model, transforming it into a sequence of network layers to simplify the process of writing the network configuration (making it much easier to modify the network architecture).
 
@@ -667,7 +677,7 @@ def forward(self, x: torch.Tensor) -> torch.Tensor:
     return self.seq_blocks(x)
 ```
 
-After modifying the model representation, we need to define our search space, which in this instance is [64, 128, 256, 512]. This search space is designated for the output of all convolutional layers, meaning the output channels of all convolutional layers can only be selected from these numbers.
+After modifying the model representation, we need to define our search space, which in this instance is [64, 128, 256, 512]. This search space is designated for the output of all convolutional layers, meaning the output channels of all convolutional layers can **only** be selected from these numbers.
 ```yaml
 # part of build_search_space:
 search_space = [64, 128, 256, 512]
