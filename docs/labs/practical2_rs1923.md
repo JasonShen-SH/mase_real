@@ -657,7 +657,7 @@ Then we found that the search option with the highest accuracy achieved an accur
 
 ## Optional Task (scaling the search to real networks)
 
-### Overall method:
+### Method1: Zero-cost proxies method as the speedy performance estimator
 
 Overall, we have used **Zero-cost proxies method as the speedy performance estimator** for our task.
 
@@ -666,8 +666,6 @@ This approach is adopted due to the high computational demands associated with f
 As a means to swiftly identify promising models with potential for high performance, we evaluate each architecture using just a single batch of data (batch_size=128).
 
 In detail, for each architecture, we conduct a brief training of this single batch across 10 epochs, subsequently determining its accuracy on the validation set.
-
-### Implementations:
 
 To start with, we have modified the presentation format of the VGG model, transforming it into a sequence of network layers to simplify the process of writing the network configuration (making it much easier to modify the network architecture).
 
@@ -769,24 +767,35 @@ if name == "bn":
         parent_name, name = get_parent_name(node.target)
         setattr(graph.modules[parent_name], name, new_module)
 ```
-
 We must also make corresponding modifications to the .toml file, which in this case, I have named <code>cifar10_vgg.toml</code>.
 
-Ultimately, we execute the following command to initiate the search operation:
+
+Then we executed the **zero-cost proxies** method on Colab for each network architecture configuration by **training the initial batch of data for 10 epochs** and subsequently obtaining the validation accuracy.
+
+The training was conducted on Colab, and further details can be accessed via the [provided link](https://colab.research.google.com/drive/1ucN6nWnnndV2dUsi2FCPNCMDBfuUXRaJ?usp=sharing).
+
+<img src="../imgs/4_optional.png" width=1000>
+
+We observed that the network configuration of **{256_256_256_256_512_512}** yielded the highest accuracy on the validation set, achieving an accuracy of 48.44% after just 10 epochs of training with only a single batch.
+
+
+### Method2: Directly conducting the search 
+
+Therefore, we believe that the network configuration of {256_256_256_256_512_512} is the most suitable for our task.
+
+In fact, we could also bypass the zero-cost proxies and **directly** conduct a search, similar to the method described in question 4. This involves creating a new Python file in the corresponding directory to define the search space, and implementing transformation methods for each module (conv2d, linear, bn, relu, maxpool), along with their corresponding configurations. The complete code is available at [link](https://github.com/JasonShen-SH/mase_real/edit/main).
+
+Conducting the search on a local CPU with the search strategy's sampler set to "tpe", we obtained the following search results:
+
+(Note that we have 84 different search options within the search space, therefore, we set <code>n_trial=84</code> within the toml file).
+
+We execute the following command to initiate the search operation: 
 ```yaml
 !./ch search --config configs/examples/cifar10_vgg.toml --load ../mase_output/vgg7_classification_cifar10_2024-02-01/software/training_ckpts/best.ckpt
 ```
 
-In reality, we should complete the pre-training process for models under every configuration (for instance, training each search option for 10 epochs as we did previously). 
-
-However, due to the number of models with different configurations and GPU resource constraints, we proceed directly to inference, which might result in relatively limited accuracy.
-
+And we get the result:
 ```yaml
-Best trial(s):
-|    |   number | software_metrics                  | hardware_metrics                                | scaled_metrics                              |
-|----+----------+-----------------------------------+-------------------------------------------------+---------------------------------------------|
-|  0 |        0 | {'loss': 2.309, 'accuracy': 0.11} | {'average_bitwidth': 32, 'memory_density': 1.0} | {'accuracy': 0.11, 'average_bitwidth': 6.4} |
-```
 
 
 
