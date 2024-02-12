@@ -1,3 +1,6 @@
+**Note**:
+For optimal viewing experience due to formatting constraints, please visit [my github repo](https://github.com/JasonShen-SH/mase_real/blob/main/docs/labs/practical1_rs1923.md).
+
 # Lab1
 
 ## Varying Parameters
