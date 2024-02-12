@@ -345,7 +345,7 @@ Contrary to the approach taken in Lab3 where pretrained models were loaded, the 
 
 We set max_epoch=10 for training and batch_size=512 for the dataloader.
 
-'''yaml
+```yaml
 # Essential Code Segment
 for multiplier in channel_multiplier:
     # get sampled_config
