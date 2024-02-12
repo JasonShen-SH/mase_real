@@ -1,5 +1,5 @@
 **Note**:
-For optimal viewing experience due to formatting constraints, please visit [my github repo for practical2](https://github.com/JasonShen-SH/mase_real/blob/main/docs/labs/practical2_rs1923.md).
+For optimal viewing experience due to formatting constraints, please visit [practical2 of my github repo](https://github.com/JasonShen-SH/mase_real/blob/main/docs/labs/practical2_rs1923.md).
 
 # Lab 3
 
