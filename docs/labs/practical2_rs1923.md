@@ -262,7 +262,7 @@ It is evident that the TPE method consistently maintains a relatively high best 
 
 
 
-# Lab4 
+# Lab4 (Software)
 
 ## 1. Modify the network to have layers expanded to double sizes.
 
